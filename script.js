@@ -1,4 +1,11 @@
 document.addEventListener("DOMContentLoaded", function() {
+    const username = localStorage.getItem('username');
+    if (!username) {
+        window.location.href = 'login.html';
+    } else {
+        document.getElementById('welcome-message').textContent = `Bienvenido, ${username}`;
+    }
+
     const jugadores = JSON.parse(localStorage.getItem('jugadores')) || [];
     const handicapList = document.getElementById("handicap-list");
     const addPlayerForm = document.getElementById("add-player-form");
@@ -13,7 +20,7 @@ document.addEventListener("DOMContentLoaded", function() {
             const doc = parser.parseFromString(data, 'text/html');
             const nuevoHandicap = doc.querySelector('td:last-child').textContent.trim();
             return {
-                nombre: "Nombre del Jugador",
+                nombre: "Nombre del Jugador",  // Reemplaza esto con la lógica para extraer el nombre
                 handicap: nuevoHandicap
             };
         } catch (error) {
