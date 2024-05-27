@@ -12,19 +12,27 @@ document.addEventListener("DOMContentLoaded", function() {
     const numeroFederadoInput = document.getElementById("numeroFederado");
 
     async function fetchPlayerData(numeroFederado) {
-        const proxyUrl = `https://cors-anywhere.herokuapp.com/http://82.223.130.155:6050/handicap_resul_mundial.aspx?sLic=${numeroFederado}`;
+        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(`http://82.223.130.155:6050/handicap_resul_mundial.aspx?sLic=${numeroFederado}`)}`;
         try {
             const response = await fetch(proxyUrl);
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-            const data = await response.text();
+            const data = await response.json();
+            const html = data.contents;
+
+            // Imprimir el HTML recibido para depuración
+            console.log(html);
+
             const parser = new DOMParser();
-            const doc = parser.parseFromString(data, 'text/html');
+            const doc = parser.parseFromString(html, 'text/html');
+
+            // Verificar los selectores con el HTML recibido
             const nombreJugadorElement = doc.querySelector('span#lblLic');
             const handicapElement = doc.querySelector('table tbody tr:last-child td:last-child');
 
             if (!nombreJugadorElement || !handicapElement) {
+                console.error("HTML received:", html);
                 throw new Error('No se encontraron los datos necesarios en la respuesta');
             }
 
