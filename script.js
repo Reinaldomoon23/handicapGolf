@@ -12,31 +12,30 @@ document.addEventListener("DOMContentLoaded", function() {
     const numeroFederadoInput = document.getElementById("numeroFederado");
 
     async function fetchPlayerData(numeroFederado) {
-        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(`http://82.223.130.155:6050/handicap_resul_mundial.aspx?sLic=${numeroFederado}`)}`;
+        const pdfUrl = `https://api.rfeg.es/files/summaryhandicap/${numeroFederado}.pdf`; // URL del PDF
         try {
-            const response = await fetch(proxyUrl);
+            const response = await fetch(pdfUrl);
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-            const data = await response.json();
-            const html = data.contents;
+            const arrayBuffer = await response.arrayBuffer();
+            const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+            const pages = pdfDoc.getPages();
+            let text = '';
 
-            // Imprimir el HTML recibido para depuración
-            console.log("HTML Recibido:", html);
-
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-
-            // Ajustar los selectores basados en el HTML recibido
-            const nombreJugadorElement = doc.querySelector('span#lblLic');
-            const handicapElement = doc.querySelector('table tbody tr:last-child td:last-child');
-
-            if (!nombreJugadorElement || !handicapElement) {
-                throw new Error('No se encontraron los datos necesarios en la respuesta');
+            for (const page of pages) {
+                const { textItems } = await page.getTextContent();
+                for (const textItem of textItems) {
+                    text += textItem.str + ' ';
+                }
             }
 
-            const nombreJugador = nombreJugadorElement.textContent.trim();
-            const nuevoHandicap = handicapElement.textContent.trim();
+            // Imprimir el texto extraído para depuración
+            console.log("Texto Extraído:", text);
+
+            // Procesar el texto para obtener nombre y handicap
+            const nombreJugador = extractNameFromText(text);
+            const nuevoHandicap = extractHandicapFromText(text);
 
             return {
                 nombre: nombreJugador,
@@ -46,6 +45,22 @@ document.addEventListener("DOMContentLoaded", function() {
             console.error("Error fetching player data:", error);
             alert("Error al obtener los datos del jugador. Por favor, intenta de nuevo.");
         }
+    }
+
+    function extractNameFromText(text) {
+        // Lógica para extraer el nombre del jugador del texto
+        // Esto dependerá del formato específico del PDF
+        const regex = /(?:Nombre|Jugador):\s*(.*)/i;
+        const match = regex.exec(text);
+        return match ? match[1].trim() : "Nombre del Jugador";
+    }
+
+    function extractHandicapFromText(text) {
+        // Lógica para extraer el nuevo handicap del texto
+        // Esto dependerá del formato específico del PDF
+        const regex = /(?:Handicap|Nuevo Handicap):\s*(\d+(\.\d+)?)/i;
+        const match = regex.exec(text);
+        return match ? match[1].trim() : "Nuevo Handicap";
     }
 
     function renderPlayers() {
