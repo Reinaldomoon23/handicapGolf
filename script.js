@@ -15,6 +15,9 @@ document.addEventListener("DOMContentLoaded", function() {
         const proxyUrl = `https://cors-anywhere.herokuapp.com/http://82.223.130.155:6050/handicap_resul_mundial.aspx?sLic=${numeroFederado}`;
         try {
             const response = await fetch(proxyUrl);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
             const data = await response.text();
             const parser = new DOMParser();
             const doc = parser.parseFromString(data, 'text/html');
@@ -25,6 +28,7 @@ document.addEventListener("DOMContentLoaded", function() {
             };
         } catch (error) {
             console.error("Error fetching player data:", error);
+            alert("Error al obtener los datos del jugador. Por favor, intenta de nuevo.");
         }
     }
 
