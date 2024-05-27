@@ -21,9 +21,18 @@ document.addEventListener("DOMContentLoaded", function() {
             const data = await response.text();
             const parser = new DOMParser();
             const doc = parser.parseFromString(data, 'text/html');
-            const nuevoHandicap = doc.querySelector('td:last-child').textContent.trim();
+            const nombreJugadorElement = doc.querySelector('#lblLic');
+            const handicapElement = doc.querySelector('table tbody tr:last-child td:last-child');
+
+            if (!nombreJugadorElement || !handicapElement) {
+                throw new Error('No se encontraron los datos necesarios en la respuesta');
+            }
+
+            const nombreJugador = nombreJugadorElement.textContent.trim();
+            const nuevoHandicap = handicapElement.textContent.trim();
+
             return {
-                nombre: "Nombre del Jugador",  // Reemplaza esto con la lógica para extraer el nombre
+                nombre: nombreJugador,
                 handicap: nuevoHandicap
             };
         } catch (error) {
@@ -34,7 +43,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function renderPlayers() {
         handicapList.innerHTML = '';
-        jugadores.forEach(jugador => {
+        jugadores.forEach((jugador, index) => {
             const row = document.createElement("tr");
 
             const nombreCell = document.createElement("td");
@@ -44,6 +53,22 @@ document.addEventListener("DOMContentLoaded", function() {
             const handicapCell = document.createElement("td");
             handicapCell.textContent = jugador.handicap;
             row.appendChild(handicapCell);
+
+            const deleteCell = document.createElement("td");
+            const deleteButton = document.createElement("button");
+            deleteButton.textContent = "Borrar";
+            deleteButton.style.backgroundColor = "#e74c3c";
+            deleteButton.style.color = "#ffffff";
+            deleteButton.style.border = "none";
+            deleteButton.style.padding = "5px 10px";
+            deleteButton.style.borderRadius = "4px";
+            deleteButton.onclick = () => {
+                jugadores.splice(index, 1);
+                localStorage.setItem('jugadores', JSON.stringify(jugadores));
+                renderPlayers();
+            };
+            deleteCell.appendChild(deleteButton);
+            row.appendChild(deleteCell);
 
             handicapList.appendChild(row);
         });
