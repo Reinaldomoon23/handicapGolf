@@ -22,17 +22,16 @@ document.addEventListener("DOMContentLoaded", function() {
             const html = data.contents;
 
             // Imprimir el HTML recibido para depuración
-            console.log(html);
+            console.log("HTML Recibido:", html);
 
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
 
-            // Verificar los selectores con el HTML recibido
+            // Ajustar los selectores basados en el HTML recibido
             const nombreJugadorElement = doc.querySelector('span#lblLic');
             const handicapElement = doc.querySelector('table tbody tr:last-child td:last-child');
 
             if (!nombreJugadorElement || !handicapElement) {
-                console.error("HTML received:", html);
                 throw new Error('No se encontraron los datos necesarios en la respuesta');
             }
 
