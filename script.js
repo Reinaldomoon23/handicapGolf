@@ -12,15 +12,17 @@ document.addEventListener("DOMContentLoaded", function() {
     const numeroFederadoInput = document.getElementById("numeroFederado");
 
     async function fetchPlayerData(numeroFederado) {
-        const proxyUrl = `https://cors-anywhere.herokuapp.com/http://82.223.130.155:6050/handicap_resul_mundial.aspx?sLic=${numeroFederado}`;
+        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(`http://82.223.130.155:6050/handicap_resul_mundial.aspx?sLic=${numeroFederado}`)}`;
         try {
             const response = await fetch(proxyUrl);
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            const data = await response.text();
+            const data = await response.json();
+            const html = data.contents;
+            
             const parser = new DOMParser();
-            const doc = parser.parseFromString(data, 'text/html');
+            const doc = parser.parseFromString(html, 'text/html');
+            
+            console.log(doc); // Imprimir el documento para depuración
+            
             const nombreJugadorElement = doc.querySelector('span#lblLic');
             const handicapElement = doc.querySelector('table tbody tr:last-child td:last-child');
 
@@ -70,21 +72,4 @@ document.addEventListener("DOMContentLoaded", function() {
             deleteCell.appendChild(deleteButton);
             row.appendChild(deleteCell);
 
-            handicapList.appendChild(row);
-        });
-    }
-
-    addPlayerForm.addEventListener("submit", async function(event) {
-        event.preventDefault();
-        const numeroFederado = numeroFederadoInput.value;
-        const nuevoJugador = await fetchPlayerData(numeroFederado);
-        if (nuevoJugador) {
-            jugadores.push(nuevoJugador);
-            localStorage.setItem('jugadores', JSON.stringify(jugadores));
-            renderPlayers();
-        }
-        numeroFederadoInput.value = '';
-    });
-
-    renderPlayers();
-});
+            handicapList.a
