@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", function() {
             const data = await response.text();
             const parser = new DOMParser();
             const doc = parser.parseFromString(data, 'text/html');
-            const nombreJugadorElement = doc.querySelector('#lblLic');
+            const nombreJugadorElement = doc.querySelector('span#lblLic');
             const handicapElement = doc.querySelector('table tbody tr:last-child td:last-child');
 
             if (!nombreJugadorElement || !handicapElement) {
